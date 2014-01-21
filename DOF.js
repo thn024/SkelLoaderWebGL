@@ -19,7 +19,7 @@ function DOF(inputWords)
 		case 'rotxlimit':
 		case 'rotylimit':
 		case 'rotzlimit':
-			this.setMinMax(inputWords[1], inputWords[2])
+			this.setRot(inputWords[1], inputWords[2])
 			break;
 		default: console.log("error parsing a DOF");
 			break;
@@ -42,10 +42,12 @@ DOF.prototype.setValue = function(inputX, inputY, inputZ)
 	yValue = parseFloat(inputY);
 	zValue = parseFloat(inputZ);
 	this.value = new THREE.Vector4(xValue, yValue, zValue, 1);
+	//console.log("parsed these DOF values: " + xValue + " " + yValue + " " + zValue);
 }
 
-DOF.prototype.setMinMax = function(inputMin, inputMax)
+DOF.prototype.setRot = function(inputMin, inputMax)
 {
 	this.min = inputMin;
 	this.max = inputMax;
+	console.log("rotMin : " + inputMin);
 }

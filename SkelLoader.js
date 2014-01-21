@@ -60,6 +60,7 @@ THREE.SkelLoader.prototype = {
 		var currentJoint = null;
 		var tempJoint = null;
 		var jointStack = [];
+
 		//for every line, we want to parse skele data
 		for(var i =0; i < lines.length; ++i)
 		{
@@ -99,6 +100,7 @@ THREE.SkelLoader.prototype = {
 
 					break;
 				case '}': //end of joint data
+					currentJoint.Load();
 					console.log("finished with joint: " + jointStack.pop().name);
 					if(jointStack.length > 0)
 					{
@@ -109,6 +111,10 @@ THREE.SkelLoader.prototype = {
 				default: console.log("dis file sucks yo, i tried to parse: " + words[0]);
 					break
 			}
+
+			//after you are done parsing, draw the scene
+
+			skeleton.Draw();
 		}
 
 		/*
