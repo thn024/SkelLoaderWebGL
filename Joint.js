@@ -22,9 +22,9 @@ Joint.prototype.Load = function()
 
 }
 
-Joint.prototype.AddChild = function()
+Joint.prototype.AddChild = function(inputJoint)
 {
-
+	this.children.push(inputJoint);
 }
 
 Joint.prototype.Draw = function()

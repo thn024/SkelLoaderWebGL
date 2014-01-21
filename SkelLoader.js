@@ -58,6 +58,8 @@ THREE.SkelLoader.prototype = {
 		debugSkeleton = skeleton;
 		var skeletonRoot = null;
 		var currentJoint = null;
+		var tempJoint = null;
+		var jointStack = [];
 		//for every line, we want to parse skele data
 		for(var i =0; i < lines.length; ++i)
 		{
@@ -70,36 +72,39 @@ THREE.SkelLoader.prototype = {
 			switch(words[0])
 			{
 				case 'offset':
-					//console.log("offset yo");
-				currentJoint.AddDOF(new DOF(words));
-					break;
 				case 'boxmin':
-
-					break;
 				case 'boxmax':
-					break;
 				case 'rotxlimit':
-					break;
 				case 'rotylimit':
-					break;
 				case 'rotzlimit':
-				currentJoint.AddDOF(new DOF(words));
-					break;
 				case 'pose':
+				currentJoint.AddDOF(new DOF(words));
 					break;
 				case 'balljoint': //i should make some sort of joint data structure here
 					if(skeletonRoot == null)
 					{
 						console.log('Creating a new Skeleton Root Node');
-						skeletonRoot = new Joint();
-						skeleton.SetRoot(skeletonRoot);
+						currentJoint = new Joint(words[1]);
+						skeletonRoot = currentJoint;
+						skeleton.SetRoot(currentJoint);
 					}
-					console.log("making a new joint: " + words[1]);
-					var testJoint = new Joint(words[1]);
-					currentJoint = testJoint;
+					else
+					{
+						console.log("making a new joint: " + words[1]);
+						tempJoint = new Joint(words[1]);
+						currentJoint.AddChild(tempJoint);
+						currentJoint = tempJoint;
+					}
+					jointStack.push(currentJoint);
+
 					break;
 				case '}': //end of joint data
-					console.log("finished with joint: " + currentJoint.name)
+					console.log("finished with joint: " + jointStack.pop().name);
+					if(jointStack.length > 0)
+					{
+						currentJoint = jointStack[jointStack.length-1];
+						console.log("current joint is now : " + currentJoint.name);
+					}
 					break
 				default: console.log("dis file sucks yo, i tried to parse: " + words[0]);
 					break
