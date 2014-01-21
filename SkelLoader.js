@@ -9,6 +9,7 @@ THREE.SkelLoader = function ( manager ) {
 };
 
 var debugging;
+var debugSkeleton;
 
 THREE.SkelLoader.prototype = {
 
@@ -23,6 +24,7 @@ THREE.SkelLoader.prototype = {
 		loader.load( url, function ( text ) {
 			debugging = text;
 			console.log("preparing to parse : " + url)
+			console.log(text);
 			scope.parse( text );
 		} );
 
@@ -53,6 +55,7 @@ THREE.SkelLoader.prototype = {
 		var face_offset = 0;
 		var lines = text.split('\n');
 		var skeleton = new Skeleton();
+		debugSkeleton = skeleton;
 		var skeletonRoot = null;
 		var currentJoint = null;
 		//for every line, we want to parse skele data
@@ -61,7 +64,6 @@ THREE.SkelLoader.prototype = {
 			//split up the file into lines
 			line = lines[i];
 			line = line.trim();
-			console.log("test: " + lines[i]);
 			//split up the line into single words, store into a word array
 			words = line.split(' ');
 			
@@ -69,7 +71,7 @@ THREE.SkelLoader.prototype = {
 			{
 				case 'offset':
 					//console.log("offset yo");
-				currentJoint.addDOF(new DOF(words));
+				currentJoint.AddDOF(new DOF(words));
 					break;
 				case 'boxmin':
 
@@ -81,6 +83,7 @@ THREE.SkelLoader.prototype = {
 				case 'rotylimit':
 					break;
 				case 'rotzlimit':
+				currentJoint.AddDOF(new DOF(words));
 					break;
 				case 'pose':
 					break;
@@ -91,11 +94,14 @@ THREE.SkelLoader.prototype = {
 						skeletonRoot = new Joint();
 						skeleton.SetRoot(skeletonRoot);
 					}
-					console.log("making a new joint");
-					var testJoint = new Joint();
+					console.log("making a new joint: " + words[1]);
+					var testJoint = new Joint(words[1]);
 					currentJoint = testJoint;
 					break;
-				default: console.log("dis file sucks yo");
+				case '}': //end of joint data
+					console.log("finished with joint: " + currentJoint.name)
+					break
+				default: console.log("dis file sucks yo, i tried to parse: " + words[0]);
 					break
 			}
 		}

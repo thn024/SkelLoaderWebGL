@@ -2,8 +2,9 @@
  * @author Thinh Nguyen / http://ThinhN.com/
  */
 
-function Joint()
+function Joint(inputName)
 {
+	this.name = inputName;
 	this.localM = new THREE.Matrix4();
 	this.globalM = new THREE.Matrix4();
 	this.parent = null; //TODO
@@ -29,4 +30,9 @@ Joint.prototype.AddChild = function()
 Joint.prototype.Draw = function()
 {
 
+}
+
+Joint.prototype.AddDOF = function(inputDOF)
+{
+	this.data.push(inputDOF);
 }
