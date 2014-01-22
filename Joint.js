@@ -11,13 +11,14 @@ function Joint(inputName)
 	this.parent = null; //TODO
 	this.children = []; //setup a list for future children
 	this.data = []; //set of DOF's to use
-	this.offset = new THREE.Matrix4();
+	this.offset = new THREE.Vector3();
 	this.min = null;
 	this.max = null;
 	this.rotXLimit = [0,0];
 	this.rotYLimit = [0,0];
 	this.rotZLimit = [0,0];
-	this.pose = new THREE.Matrix4();
+	this.pose = new THREE.Vector3();
+	this.object3D = new THREE.Object3D();	//create a transformation matrix for this node
 	this.mesh = null;
 }
 
@@ -47,6 +48,8 @@ Joint.prototype.Load = function()
 	}
 
 	//draw a box using the min and max bounding box data
+	this.setPose();
+	this.setOffsets();
 	this.MakeCube();
 	jointDebug = this;
 }
@@ -59,7 +62,12 @@ Joint.prototype.AddChild = function(inputJoint)
 Joint.prototype.Draw = function(skeletonSceneNode)
 {
 	//console.log("trying to draw this skeleton scene node: " + skeletonSceneNode);
-	skeletonSceneNode.add(this.mesh);
+	skeletonSceneNode.add(this.object3D);
+	this.object3D.add(this.mesh);
+	for(var i = 0; i < this.children.length; ++i)
+	{
+		this.children[i].Draw(this.object3D);
+	}
 }
 
 Joint.prototype.AddDOF = function(inputDOF)
@@ -67,6 +75,7 @@ Joint.prototype.AddDOF = function(inputDOF)
 	this.data.push(inputDOF);
 }
 
+//makes the cube out of the min vertex and max vertex
 Joint.prototype.MakeCube = function()
 {
 	var geometry = new THREE.Geometry();
@@ -112,12 +121,23 @@ Joint.prototype.MakeCube = function()
 
 	geometry.computeFaceNormals();
 
-	for ( var i = 0; i < geometry.faces.length; i ++ )
-	{
-        //geometry.faces[ i ].color.setHex( Math.random() * 0xffffff );
-        geometry.faces[ i ].color.setHex(0xEEEEEE );
-    }
-      var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } );
+	for ( var i = 0; i < geometry.faces.length; i += 2 ) {
+			var hex = Math.random() * 0xffffff;
+			geometry.faces[ i ].color.setHex( hex );
+			geometry.faces[ i + 1 ].color.setHex( hex );
+		}
+
+	var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors, overdraw: 0.5 } );
 
     this.mesh = new THREE.Mesh(geometry, material);
+}
+
+Joint.prototype.setPose = function()
+{
+	this.object3D.rotation.set(this.pose.x, this.pose.y, this.pose.z)
+}
+
+Joint.prototype.setOffsets = function()
+{
+	this.object3D.position.set(this.offset.x, this.offset.y, this.offset.z)
 }

@@ -6,9 +6,9 @@ function Skeleton()
 {
 	this.root = null;
 	this.skeletonSceneNode = new THREE.Object3D();
-	this.skeletonSceneNode.scale.x = 100;
-	this.skeletonSceneNode.scale.y = 100;
-	this.skeletonSceneNode.scale.z = 100;
+	this.skeletonSceneNode.scale.x = 50;
+	this.skeletonSceneNode.scale.y = 50;
+	this.skeletonSceneNode.scale.z = 50;
 	this.skeletonSceneNode.name = "skeletonSceneNode";
 	scene.add(this.skeletonSceneNode);
 }
