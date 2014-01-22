@@ -8,7 +8,7 @@ function DOF(inputWords)
 	this.min = null;
 	this.max = null;
 	this.dType = inputWords[0];
-	console.log(inputWords);
+	//console.log(inputWords);
 	switch (inputWords[0])
 	{
 		case 'offset':
@@ -43,12 +43,12 @@ DOF.prototype.setValue = function(inputX, inputY, inputZ)
 	yValue = parseFloat(inputY);
 	zValue = parseFloat(inputZ);
 	this.value = new THREE.Vector4(xValue, yValue, zValue, 1);
-	console.log("parsed these DOF values: " + xValue + " " + yValue + " " + zValue);
+	//console.log("parsed these DOF values: " + xValue + " " + yValue + " " + zValue);
 }
 
 DOF.prototype.setRot = function(inputMin, inputMax)
 {
 	this.min = inputMin;
 	this.max = inputMax;
-	console.log("rotMin : " + inputMin);
+	//console.log("rotMin : " + inputMin);
 }

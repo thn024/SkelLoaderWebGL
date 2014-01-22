@@ -32,7 +32,9 @@
 
 			var windowHalfX = window.innerWidth / 2;
 			var windowHalfY = window.innerHeight / 2;
-
+			var testSkeleton;
+			var waspSkeleton;
+			var dragonSkeleton;
 
 			init();
 			animate();
@@ -53,7 +55,6 @@
 				container.appendChild( info );
 
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-				camera.position.z = -200;
 
 				// scene
 				scene = new THREE.Scene();
@@ -76,9 +77,17 @@
 				};
 
 
-				var loader = new THREE.SkelLoader(manager);
-				//loader.load('test.skel');
-				loader.load('wasp.skel');
+				var loader1 = new THREE.SkelLoader(manager);
+				loader1.load('test.skel');
+				testSkeleton = loader1;
+
+				var loader2 = new THREE.SkelLoader(manager);
+				loader2.load('wasp.skel');
+				waspSkeleton = loader2;
+
+				var loader3 = new THREE.SkelLoader(manager);
+				loader3.load('dragon.skel');
+				dragonSkeleton = loader3;
 
 				//add a nice ground plane
 				/*
@@ -97,10 +106,10 @@
 				container.appendChild( renderer.domElement );
 
 				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-
-				//
-
 				window.addEventListener( 'resize', onWindowResize, false );
+				document.addEventListener('keydown', function(event) {
+					handleKeyboardEvent(event);
+				});
 
 			}
 
@@ -123,6 +132,41 @@
 
 			}
 
+			function handleKeyboardEvent(event)
+			{
+				if(event.keyCode == 37) {
+			        alert('Left was pressed');
+			    }
+			    else if(event.keyCode == 39) {
+			        alert('Right was pressed');
+			    }
+			    switch(event.keyCode)
+			    {
+			    	case 49: console.log ("i pressed 1");
+			    		camera.position.z = 100;
+			    		scene.position.y = 0;
+			    		testSkeleton.skeleton.toggleVisibility();
+			    		waspSkeleton.skeleton.setVisibility(false);
+			    		dragonSkeleton.skeleton.setVisibility(false);
+			    		break;
+			    	case 50: console.log ('i pressed 2');
+			    		camera.position.z = -200;
+			    		scene.position.y = 0;
+			    		waspSkeleton.skeleton.toggleVisibility();
+			    		testSkeleton.skeleton.setVisibility(false);
+			    		dragonSkeleton.skeleton.setVisibility(false);
+			    		break;
+			    	case 51: console.log ('i pressed 3');
+			    		camera.position.z = 700;
+			    		scene.position.y = 100;
+			    		dragonSkeleton.skeleton.toggleVisibility();
+			    		testSkeleton.skeleton.setVisibility(false);
+			    		waspSkeleton.skeleton.setVisibility(false);
+			    		break;
+			    	default: console.log(event.keyCode);
+			    }
+			}
+
 			//
 
 			function animate() {
@@ -142,6 +186,8 @@
 				renderer.render( scene, camera );
 
 			}
+
+
 
 		</script>
 

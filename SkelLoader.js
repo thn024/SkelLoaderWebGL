@@ -5,11 +5,13 @@
 THREE.SkelLoader = function ( manager ) {
 
 	this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
+	this.skeleton = null;
 
 };
 
 var debugging;
 var debugSkeleton;
+var w;
 
 THREE.SkelLoader.prototype = {
 
@@ -18,16 +20,15 @@ THREE.SkelLoader.prototype = {
 	load: function ( url, onLoad, onProgress, onError ) {
 
 		var scope = this;
-
+		var skeleton = null;
 		var loader = new THREE.XHRLoader( scope.manager );
 		loader.setCrossOrigin( this.crossOrigin );
 		loader.load( url, function ( text ) {
 			debugging = text;
 			console.log("preparing to parse : " + url)
 			console.log(text);
-			scope.parse( text );
+			skeleton = scope.parse( text );
 		} );
-
 	},
 
 	parse: function ( text ) {
@@ -115,8 +116,11 @@ THREE.SkelLoader.prototype = {
 
 			//after you are done parsing, draw the scene
 
-			skeleton.Draw();
+			
+			
 		}
+		skeleton.Draw();
+		this.skeleton = skeleton;
 	}
 
 };
