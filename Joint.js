@@ -14,9 +14,9 @@ function Joint(inputName)
 	this.offset = new THREE.Vector3();
 	this.min = null;
 	this.max = null;
-	this.rotXLimit = [0,0];
-	this.rotYLimit = [0,0];
-	this.rotZLimit = [0,0];
+	this.rotXLimit = [-100000,100000];
+	this.rotYLimit = [-100000,100000];
+	this.rotZLimit = [-100000,100000];
 	this.pose = new THREE.Vector3();
 	this.object3D = new THREE.Object3D();	//create a transformation matrix for this node
 	this.mesh = null;
@@ -40,7 +40,7 @@ Joint.prototype.Load = function()
 			case 'offset': this.offset = inputDOF.getValue(); break;
 			case 'boxmin': this.min = inputDOF.getValue(); break;
 			case 'boxmax': this.max = inputDOF.getValue(); break;
-			case 'rotxlimit': this.rotXLimit = [inputDOF.min, inputDOF.max]; break;
+			case 'rotxlimit': this.rotXLimit = [inputDOF.min, inputDOF.max]; console.log("setting rotLimit"); break;
 			case 'rotylimit': this.rotYLimit = [inputDOF.min, inputDOF.max]; break;
 			case 'rotzlimit': this.rotZLimit = [inputDOF.min, inputDOF.max]; break;
 			case 'pose': this.pose = inputDOF.getValue(); break;
@@ -50,6 +50,7 @@ Joint.prototype.Load = function()
 	//draw a box using the min and max bounding box data
 	this.setPose();
 	this.setOffsets();
+	this.localM = this.object3D.matrix;
 	this.MakeCube();
 	jointDebug = this;
 }
@@ -134,10 +135,86 @@ Joint.prototype.MakeCube = function()
 
 Joint.prototype.setPose = function()
 {
-	this.object3D.rotation.set(this.pose.x, this.pose.y, this.pose.z)
+	//this.object3D.rotation.set(this.pose.x, this.pose.y, this.pose.z)
+
+	//check for boundaries
+	if(this.pose.x < this.rotXLimit[0] || this.pose.x > this.rotXLimit[1])
+	{
+		console.log("out of xRotBounds for :" + this.pose.x);
+		var lower = Math.abs(this.pose.x - this.rotXLimit[0]);
+		var upper = Math.abs(this.pose.x - this.rotXLimit[1]);
+		if(lower > upper)
+		{
+			this.pose.x = this.rotXLimit[1];
+		}
+		else
+		{
+			this.pose.x = this.rotXLimit[0];
+		}
+		console.log("setting xRot to : " + this.pose.x);
+	}
+	if(this.pose.y < this.rotYLimit[0] || this.pose.y > this.rotYLimit[1])
+	{
+		console.log("out of yRotBounds for :" + this.pose.y);
+		var lower = Math.abs(this.pose.y - this.rotXLimit[0]);
+		var upper = Math.abs(this.pose.y - this.rotXLimit[1]);
+		if(lower > upper)
+		{
+			this.pose.y = this.rotYLimit[1];
+		}
+		else
+		{
+			this.pose.y = this.rotYLimit[0];
+		}
+		console.log("setting xRot to : " + this.pose.x);
+	}
+	if(this.pose.z < this.rotZLimit[0] || this.pose.z > this.rotZLimit[1])
+	{
+		//console.log("out of zRotBounds for :" + this.pose.z);
+		var lower = Math.abs(this.pose.z - this.rotXLimit[0]);
+		var upper = Math.abs(this.pose.z - this.rotXLimit[1]);
+		if(lower > upper)
+		{
+			this.pose.z = this.rotZLimit[1];
+		}
+		else
+		{
+			this.pose.z = this.rotZLimit[0];
+		}
+		//console.log("setting zRot to : " + this.pose.z);
+	}
+
+	this.object3D.matrixAutoUpdate = false;
+
+	var xMat = new THREE.Matrix4();
+	var yMat = new THREE.Matrix4();
+	var zMat = new THREE.Matrix4();
+	var b = Math.cos(this.pose.x), a = Math.sin(this.pose.x);
+	xMat.set(1,0,0,0,
+			 0,b,-a,0,
+			 0,a,b,0,
+			 0,0,0,1);
+	var b = Math.cos(this.pose.y), a = Math.sin(this.pose.y);
+	yMat.set(b,0,a,0,
+			 0,1,0,0,
+			 -a,0,b,0,
+			 0,0,0,1);
+	var b = Math.cos(this.pose.z), a = Math.sin(this.pose.z);
+	zMat.set(b,-a,0,0,
+			 a,b,0,0,
+			 0,0,1,0,
+			 0,0,0,1);
+
+	this.object3D.matrix = zMat.multiply(yMat).multiply(xMat);
 }
 
 Joint.prototype.setOffsets = function()
 {
-	this.object3D.position.set(this.offset.x, this.offset.y, this.offset.z)
+	//this.object3D.position.set(this.offset.x, this.offset.y, this.offset.z)
+	var tMat = new THREE.Matrix4();
+	tMat.set(1,0,0,this.offset.x,
+			 0,1,0,this.offset.y,
+			 0,0,1,this.offset.z,
+			 0,0,0,1);
+	this.object3D.matrix = tMat.multiply(this.object3D.matrix);
 }
