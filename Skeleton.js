@@ -28,7 +28,7 @@ Skeleton.prototype.Load = function()
 Skeleton.prototype.Draw = function()
 {
 	//console.log(this.skeletonSceneNode);
-	this.root.Draw(this.skeletonSceneNode);
+	this.root.Draw(this.skeletonSceneNode, this.skeletonSceneNode);
 }
 
 Skeleton.prototype.SetRoot = function(inputJoint)

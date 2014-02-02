@@ -18,6 +18,7 @@ function Joint(inputName)
 	this.rotYLimit = [-100000,100000];
 	this.rotZLimit = [-100000,100000];
 	this.pose = new THREE.Vector3();
+	this.pose.x = 0; this.pose.y = 0; this.pose.z = 0;
 	this.object3D = new THREE.Object3D();	//create a transformation matrix for this node
 	this.mesh = null;
 }
@@ -60,15 +61,38 @@ Joint.prototype.AddChild = function(inputJoint)
 	this.children.push(inputJoint);
 }
 
-Joint.prototype.Draw = function(skeletonSceneNode)
+var mDebug; var mDebug2;
+
+
+
+Joint.prototype.Draw = function(parent, root)
 {
 	//console.log("trying to draw this skeleton scene node: " + skeletonSceneNode);
-	skeletonSceneNode.add(this.object3D);
+	
+
+	mDebug = this.object3D.matrixWorld;
+	this.globalM = this.object3D.matrixWorld;
+	//this.object3D.matrix.multiply(parent.matrix);
+	//this.object3D.matrix = parent.matrix.multiply(this.object3D.matrix);
+	mDebug2= parent.matrix.clone();
+
+	console.log(mDebug.elements);
+	console.log(mDebug2.elements);
+	console.log("now printing this.Object3D.matrix");
+	console.log(this.object3D.matrix.elements);
+	console.log("end");
+
+	parent.add(this.object3D);
 	this.object3D.add(this.mesh);
+	
 	for(var i = 0; i < this.children.length; ++i)
 	{
-		this.children[i].Draw(this.object3D);
+		this.children[i].Draw(this.object3D, root);
 	}
+	
+	
+	//root.add(this.object3D);
+	
 }
 
 Joint.prototype.AddDOF = function(inputDOF)
@@ -217,4 +241,5 @@ Joint.prototype.setOffsets = function()
 			 0,0,1,this.offset.z,
 			 0,0,0,1);
 	this.object3D.matrix = tMat.multiply(this.object3D.matrix);
+	//this.object3D.matrix = this.object3D.matrix.multiply(tMat);
 }
