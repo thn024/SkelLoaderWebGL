@@ -13,6 +13,7 @@ function Skeleton()
 	scene.add(this.skeletonSceneNode);
 	this.visibility = false;
 	this.skeletonSceneNode.visible = this.visibility;
+	this.jointBuffer = [];
 }
 
 Skeleton.prototype.Update = function()
@@ -28,7 +29,7 @@ Skeleton.prototype.Load = function()
 Skeleton.prototype.Draw = function()
 {
 	//console.log(this.skeletonSceneNode);
-	this.root.Draw(this.skeletonSceneNode, this.skeletonSceneNode);
+	this.root.Draw(this.skeletonSceneNode, this);
 }
 
 Skeleton.prototype.SetRoot = function(inputJoint)
@@ -46,4 +47,10 @@ Skeleton.prototype.setVisibility = function(inputBool)
 {
 	this.visibility = inputBool;
 	this.skeletonSceneNode.visible = this.visibility;
+}
+
+//function that returns the world matrix at a specific node in the scene
+Skeleton.prototype.getWorldMatrix = function(index)
+{
+
 }

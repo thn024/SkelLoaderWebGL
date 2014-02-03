@@ -65,7 +65,7 @@ var mDebug; var mDebug2;
 
 
 
-Joint.prototype.Draw = function(parent, root)
+Joint.prototype.Draw = function(parent, rootSkeleton)
 {
 	//console.log("trying to draw this skeleton scene node: " + skeletonSceneNode);
 	
@@ -74,20 +74,23 @@ Joint.prototype.Draw = function(parent, root)
 	this.globalM = this.object3D.matrixWorld;
 	//this.object3D.matrix.multiply(parent.matrix);
 	//this.object3D.matrix = parent.matrix.multiply(this.object3D.matrix);
-	mDebug2= parent.matrix.clone();
+	//mDebug2= parent.matrix.clone();
 
+	/*
 	console.log(mDebug.elements);
 	console.log(mDebug2.elements);
 	console.log("now printing this.Object3D.matrix");
 	console.log(this.object3D.matrix.elements);
 	console.log("end");
-
+	*/
 	parent.add(this.object3D);
 	this.object3D.add(this.mesh);
 	
+	rootSkeleton.jointBuffer.push(this);
+
 	for(var i = 0; i < this.children.length; ++i)
 	{
-		this.children[i].Draw(this.object3D, root);
+		this.children[i].Draw(this.object3D, rootSkeleton);
 	}
 	
 	

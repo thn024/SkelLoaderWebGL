@@ -22,6 +22,9 @@
 		<script src="DOF.js"></script>
 		<script src="Joint.js"></script>
 		<script src="Skeleton.js"></script>
+		<script src="SkinLoader.js"></script>
+		<script src="Skin.js"></script>
+		<script src="Vertex.js"></script>
 		<script>
 
 			var container, stats;
@@ -107,6 +110,9 @@
 				var loader4 = new THREE.SkelLoader(manager);
 				loader4.load('tube.skel');
 				tubeSkeleton = loader4;
+
+				var skinLoader4 = new THREE.SkinLoader(manager);
+				skinLoader4.load('tube_smooth.skin');
 
 
 				//add a nice ground plane
