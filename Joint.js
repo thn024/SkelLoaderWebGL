@@ -11,21 +11,41 @@ function Joint(inputName)
 	this.parent = null; //TODO
 	this.children = []; //setup a list for future children
 	this.data = []; //set of DOF's to use
-	this.offset = new THREE.Vector3();
+	this.dataGui = []; //set of DOFGuis' to use
+	this.offset = [0,0,0];//new THREE.Vector3();
 	this.min = null;
 	this.max = null;
 	this.rotXLimit = [-100000,100000];
 	this.rotYLimit = [-100000,100000];
 	this.rotZLimit = [-100000,100000];
-	this.pose = new THREE.Vector3();
-	this.pose.x = 0; this.pose.y = 0; this.pose.z = 0;
+	this.pose = new THREE.Vector3();//[0,0,0]; //new THREE.Vector3();
+
+	//this.pose.x = 0; this.pose.y = 0; this.pose.z = 0;
+	//this.poseDOF = new DOF("pose 0 0 0");
+	this.xPose = 0;
+	this.yPose = 0;
+	this.zPose = 0;
+
+	this.xOff = 0;
+	this.yOff = 0;
+	this.zOff = 0;
+
 	this.object3D = new THREE.Object3D();	//create a transformation matrix for this node
 	this.mesh = null;
+
+
 }
 
-Joint.prototype.Update = function()
+Joint.prototype.Update = function(root)
 {
+	this.setPose();
+	this.setOffsets();
 
+	root.jointBuffer.push(this);
+	for(var i = 0; i < this.children.length; ++i)
+	{
+		this.children[i].Update(root);
+	}
 }
 
 Joint.prototype.Load = function()
@@ -34,23 +54,42 @@ Joint.prototype.Load = function()
 	for(var i = 0; i < this.data.length; ++i)
 	{
 		var inputDOF = this.data[i];
+		var inputGui = this.dataGui[i];
+		//var dofGui = inputJointGui.addFolder(inputDOF.dType);
 		//console.log("CurrentName : " + this.name + " ::: length : " + this.data.length)
 		//console.log("current Dtype : " + inputDOF.dType + " ::: current values : " + inputDOF.getValue().x);
 	switch(inputDOF.dType)
 		{
-			case 'offset': this.offset = inputDOF.getValue(); break;
+			case 'offset':
+				this.offset = inputDOF.getValue();
+				/*
+				inputDOF.setGuiValue(inputGui, 'x', this.offset.x, null, null);
+				inputDOF.setGuiValue(inputGui, 'y', this.offset.y, null, null);
+				inputDOF.setGuiValue(inputGui, 'z', this.offset.z, null, null);
+				*/
+				break;
 			case 'boxmin': this.min = inputDOF.getValue(); break;
 			case 'boxmax': this.max = inputDOF.getValue(); break;
 			case 'rotxlimit': this.rotXLimit = [inputDOF.min, inputDOF.max]; console.log("setting rotLimit"); break;
 			case 'rotylimit': this.rotYLimit = [inputDOF.min, inputDOF.max]; break;
 			case 'rotzlimit': this.rotZLimit = [inputDOF.min, inputDOF.max]; break;
-			case 'pose': this.pose = inputDOF.getValue(); break;
+			case 'pose': var ret = inputDOF.getValue();
+							this.pose.x = ret[0];
+							this.pose.y = ret[1];
+							this.pose.z = ret[2];
+				//inputDOF.setGuiValue(inputGui, 'x', this.pose.x, this.rotXLimit[0], this.rotXLimit[1]);
+				//inputDOF.setGuiValue(inputGui, 'y', this.pose.y, this.rotYLimit[0], this.rotYLimit[1]);
+				//inputDOF.setGuiValue(inputGui, 'z', this.pose.z, this.rotZLimit[0], this.rotZLimit[1]);
+				break;
 		}
 	}
 
 	//draw a box using the min and max bounding box data
 	this.setPose();
 	this.setOffsets();
+
+	//this.Update()
+
 	this.localM = this.object3D.matrix;
 	this.MakeCube();
 	jointDebug = this;
@@ -103,20 +142,25 @@ Joint.prototype.AddDOF = function(inputDOF)
 	this.data.push(inputDOF);
 }
 
+Joint.prototype.AddDOFGui = function(inputDOFGui)
+{
+	this.dataGui.push(inputDOFGui);
+}
+
 //makes the cube out of the min vertex and max vertex
 Joint.prototype.MakeCube = function()
 {
 	var geometry = new THREE.Geometry();
 	//create the 8 vertices for the cube
-	geometry.vertices.push(new THREE.Vector3(this.min.x, this.min.y, this.max.z));
-	geometry.vertices.push(new THREE.Vector3(this.max.x, this.min.y, this.max.z));
-	geometry.vertices.push(new THREE.Vector3(this.max.x, this.max.y, this.max.z));
-	geometry.vertices.push(new THREE.Vector3(this.min.x, this.max.y, this.max.z));
+	geometry.vertices.push(new THREE.Vector3(this.min[0], this.min[1], this.max[2]));
+	geometry.vertices.push(new THREE.Vector3(this.max[0], this.min[1], this.max[2]));
+	geometry.vertices.push(new THREE.Vector3(this.max[0], this.max[1], this.max[2]));
+	geometry.vertices.push(new THREE.Vector3(this.min[0], this.max[1], this.max[2]));
 
-	geometry.vertices.push(new THREE.Vector3(this.min.x, this.min.y, this.min.z));
-	geometry.vertices.push(new THREE.Vector3(this.max.x, this.min.y, this.min.z));
-	geometry.vertices.push(new THREE.Vector3(this.max.x, this.max.y, this.min.z));
-	geometry.vertices.push(new THREE.Vector3(this.min.x, this.max.y, this.min.z));
+	geometry.vertices.push(new THREE.Vector3(this.min[0], this.min[1], this.min[2]));
+	geometry.vertices.push(new THREE.Vector3(this.max[0], this.min[1], this.min[2]));
+	geometry.vertices.push(new THREE.Vector3(this.max[0], this.max[1], this.min[2]));
+	geometry.vertices.push(new THREE.Vector3(this.min[0], this.max[1], this.min[2]));
 
 	
 
@@ -155,7 +199,8 @@ Joint.prototype.MakeCube = function()
 			geometry.faces[ i + 1 ].color.setHex( hex );
 		}
 
-	var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors, overdraw: 0.5 } );
+	var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors, overdraw: 0.5, transparent : true,
+                    alphaTest : 0.5 } );
 
     this.mesh = new THREE.Mesh(geometry, material);
 }
@@ -197,7 +242,7 @@ Joint.prototype.setPose = function()
 	}
 	if(this.pose.z < this.rotZLimit[0] || this.pose.z > this.rotZLimit[1])
 	{
-		//console.log("out of zRotBounds for :" + this.pose.z);
+		console.log("out of zRotBounds for :" + this.pose.z);
 		var lower = Math.abs(this.pose.z - this.rotXLimit[0]);
 		var upper = Math.abs(this.pose.z - this.rotXLimit[1]);
 		if(lower > upper)
@@ -208,7 +253,7 @@ Joint.prototype.setPose = function()
 		{
 			this.pose.z = this.rotZLimit[0];
 		}
-		//console.log("setting zRot to : " + this.pose.z);
+		console.log("setting zRot to : " + this.pose.z);
 	}
 
 	this.object3D.matrixAutoUpdate = false;
@@ -239,9 +284,9 @@ Joint.prototype.setOffsets = function()
 {
 	//this.object3D.position.set(this.offset.x, this.offset.y, this.offset.z)
 	var tMat = new THREE.Matrix4();
-	tMat.set(1,0,0,this.offset.x,
-			 0,1,0,this.offset.y,
-			 0,0,1,this.offset.z,
+	tMat.set(1,0,0,this.offset[0],
+			 0,1,0,this.offset[1],
+			 0,0,1,this.offset[2],
 			 0,0,0,1);
 	this.object3D.matrix = tMat.multiply(this.object3D.matrix);
 	//this.object3D.matrix = this.object3D.matrix.multiply(tMat);

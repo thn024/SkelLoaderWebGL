@@ -6,7 +6,7 @@ THREE.SkelLoader = function ( manager ) {
 
 	this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
 	this.skeleton = null;
-
+	this.guiFolder = null;
 };
 
 var debugging;
@@ -21,12 +21,16 @@ THREE.SkelLoader.prototype = {
 
 		var scope = this;
 		var skeleton = null;
+		this.guiFolder = gui.addFolder(url);
+		
+
 		var loader = new THREE.XHRLoader( scope.manager );
 		loader.setCrossOrigin( this.crossOrigin );
 		loader.load( url, function ( text ) {
 			debugging = text;
+
 			console.log("preparing to parse : " + url)
-			console.log(text);
+			//console.log(text);
 			skeleton = scope.parse( text );
 		} );
 	},
@@ -61,6 +65,7 @@ THREE.SkelLoader.prototype = {
 		var currentJoint = null;
 		var tempJoint = null;
 		var jointStack = [];
+		var jointGui;
 
 		//for every line, we want to parse skele data
 		for(var i =0; i < lines.length; ++i)
@@ -75,13 +80,17 @@ THREE.SkelLoader.prototype = {
 			switch(words[0])
 			{
 				case 'offset':
-				case 'boxmin':
-				case 'boxmax':
-				case 'rotxlimit':
-				case 'rotylimit':
-				case 'rotzlimit':
-				case 'pose':
-				currentJoint.AddDOF(new DOF(words));
+				case 'boxmin': 
+				case 'boxmax': 
+				case 'rotxlimit': 
+				case 'rotylimit': 
+				case 'rotzlimit': 
+				case 'pose': 
+				var dof = new DOF(words);
+				//console.log(jointGui);
+				//jointTypeGui = jointGui.addFolder(dof.dType);
+				currentJoint.AddDOF(dof);
+				//currentJoint.AddDOFGui(jointTypeGui);
 					break;
 				case 'balljoint': //i should make some sort of joint data structure here
 					if(skeletonRoot == null)
@@ -98,11 +107,28 @@ THREE.SkelLoader.prototype = {
 						currentJoint.AddChild(tempJoint);
 						currentJoint = tempJoint;
 					}
+
+					jointGui = this.guiFolder.addFolder(currentJoint.name);
+					jointGui.add(currentJoint, 'name');
+
+					poseGui = jointGui.addFolder('pose');
+					poseGui.add(currentJoint, 'xPose');
+					poseGui.add(currentJoint, 'yPose');
+					poseGui.add(currentJoint, 'zPose');
+
+					poseGui = jointGui.addFolder('offset');
+					poseGui.add(currentJoint, 'xOff');
+					poseGui.add(currentJoint, 'yOff');
+					poseGui.add(currentJoint, 'zOff');
+
 					jointStack.push(currentJoint);
 
 					break;
 				case '}': //end of joint data
 					currentJoint.Load();
+					//put it into the GUI
+					
+
 					console.log("finished with joint: " + jointStack.pop().name);
 					if(jointStack.length > 0)
 					{

@@ -8,6 +8,7 @@ function Skin(inputName, inputSkeleton)
 	this.tempString = [];
 	
 	this.object3D = new THREE.Object3D();
+	this.object3D.name = this.name;
 	this.visibility = false;
 	this.object3D.visible = false;
 	scene.add(this.object3D);
@@ -110,14 +111,62 @@ Skin.prototype.addMatrix = function(inputString, inputIndex, inputMatrixIndex)
 
 
 var debugDraw;
-Skin.prototype.Draw = function()
+Skin.prototype.Update = function()
 {
+	//scene.remove(scene.getObjectByName(this.name));
+	if(this.object3D.getObjectByName("mesh") != undefined)
+	{
+		console.log("removed the mesh");
+		this.object3D.remove(this.object3D.getObjectByName("mesh"));
+	}
+	this.skeleton.Update();
 	for(var i = 0; i < this.vertexBuffer.length; ++i)
 	{
 		this.vertexBuffer[i].prep(this.skeleton, this.matrixBuffer);
 	}
 
-	debugDraw = this.indexBuffer;
+	var geometry = new THREE.Geometry();
+	var tNormalBuffer = [];
+	for(var i = 0; i < this.vertexBuffer.length; ++i)
+	{
+		//fill up the vertex buffer
+		geometry.vertices.push(this.vertexBuffer[i].nPosition);
+		tNormalBuffer.push(this.vertexBuffer[i].nNormal);
+	}
+
+	for(var i = 0; i < this.indexBuffer.length; ++i)
+	{
+		var index1 = this.indexBuffer[i][0];
+		var index2 = this.indexBuffer[i][1];
+		var index3 = this.indexBuffer[i][2];
+
+		//make the face from those 3 vertices
+		geometry.faces.push(new THREE.Face3(index1, index2, index3));
+
+		//set the normals for each vertex
+
+		geometry.faces[i].vertexNormals[0] = tNormalBuffer[index1];
+		geometry.faces[i].vertexNormals[1] = tNormalBuffer[index2];
+		geometry.faces[i].vertexNormals[2] = tNormalBuffer[index3];
+
+		debugDraw = geometry;
+	}
+
+	//var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors, overdraw: 0.5 } );
+	var material = new THREE.MeshPhongMaterial( { color: 0xffffff, ambient: 0x444444, transparent: false} );
+	//material.side = THREE.DoubleSide;
+
+	this.mesh = new THREE.Mesh(geometry, material);
+	this.mesh.name = "mesh";
+	//scene.add(this.object3D);
+	
+	this.object3D.add(this.mesh);
+}
+
+Skin.prototype.Draw = function()
+{
+	
+	this.Update();
 	
 	//add each individual triangle into the scene, exetremely slow?
 	/*
@@ -156,44 +205,7 @@ Skin.prototype.Draw = function()
 	}
 	*/
 
-	var geometry = new THREE.Geometry();
-	var tNormalBuffer = [];
-	for(var i = 0; i < this.vertexBuffer.length; ++i)
-	{
-		//fill up the vertex buffer
-		geometry.vertices.push(this.vertexBuffer[i].position);
-		tNormalBuffer.push(this.vertexBuffer[i].normal);
-	}
-
-	for(var i = 0; i < this.indexBuffer.length; ++i)
-	{
-		var index1 = this.indexBuffer[i][0];
-		var index2 = this.indexBuffer[i][1];
-		var index3 = this.indexBuffer[i][2];
-
-		//make the face from those 3 vertices
-		geometry.faces.push(new THREE.Face3(index1, index2, index3));
-
-		//set the normals for each vertex
-
-		geometry.faces[i].vertexNormals[0] = tNormalBuffer[index1];
-		geometry.faces[i].vertexNormals[1] = tNormalBuffer[index2];
-		geometry.faces[i].vertexNormals[2] = tNormalBuffer[index3];
-
-		
-		
-
-		
-
-		debugDraw = geometry;
-	}
-
-	//var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors, overdraw: 0.5 } );
-	var material = new THREE.MeshPhongMaterial( { color: 0xffffff, ambient: 0x444444, transparent: false} );
-	//material.side = THREE.DoubleSide;
-
-	this.mesh = new THREE.Mesh(geometry, material);
-	this.object3D.add(this.mesh);
+	
 }
 
 Skin.prototype.toggleVisibility = function()

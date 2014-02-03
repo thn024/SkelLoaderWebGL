@@ -19,6 +19,8 @@ function Skeleton()
 Skeleton.prototype.Update = function()
 {
 	//placeholder
+	this.jointBuffer = [];
+	this.root.Update(this);
 }
 
 Skeleton.prototype.Load = function()

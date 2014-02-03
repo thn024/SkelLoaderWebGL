@@ -1,7 +1,9 @@
 function Vertex(inputWords)
 {
 	this.position = null;
+	this.nPosition = null;
 	this.normal = null;
+	this.nNormal = null;
 	this.color = null;
 	this.texCoord = null;
 	this.numAttachments = 0;
@@ -72,14 +74,14 @@ Vertex.prototype.handlePos = function(inputSkeleton, inputMatrixBuffer)
 		//console.log("worldM : ");
 		//console.log(currentWorldMatrix.elements);
 		//grab the inverse of the binding matrix
-		var invBindingMatrix = bindingMatrix.getInverse(bindingMatrix);
+		var invBindingMatrix = bindingMatrix.getInverse(bindingMatrix).clone();
 
 		//console.log("invM :");
 		//console.log(invBindingMatrix.elements);
 		
 
 		//multiply: (weight)(WorldMatrix)(invBindingMatrix), pop it onto the buffer stack
-		var temp = currentWorldMatrix.multiply(invBindingMatrix);
+		var temp = currentWorldMatrix.multiply(invBindingMatrix).clone();
 		debugM = currentWorldMatrix;
 		//console.log("before scale")
 		//console.log(temp.elements);
@@ -109,13 +111,13 @@ Vertex.prototype.handlePos = function(inputSkeleton, inputMatrixBuffer)
 		//console.log(temp.elements);
 	}
 
-	var newPosition = this.position.applyMatrix4(temp);
-	var newNormal = this.normal.applyMatrix4(temp);
+	var newPosition = this.position.clone().applyMatrix4(temp);
+	var newNormal = this.normal.clone().applyMatrix4(temp);
 	newNormal.normalize();
 
 	//console.log(newPosition);
-	this.position = newPosition.clone();
-	this.normal = newNormal.clone();
+	this.nPosition = newPosition.clone();
+	this.nNormal = newNormal.clone();
 	//after you finish getting each 
 
 }

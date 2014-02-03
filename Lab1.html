@@ -17,9 +17,11 @@
 		<script src="libs/three.min.js"></script>
 		<script src="libs/OBJLoader.js"></script>
 		<script src="libs/Detector.js"></script>
+		<script src="libs/dat.gui.min.js"></script>
 		<script src="libs/stats.min.js"></script>
 		<script src="SkelLoader.js"></script>
 		<script src="DOF.js"></script>
+		<script src="DOFValue.js"></script>
 		<script src="Joint.js"></script>
 		<script src="Skeleton.js"></script>
 		<script src="SkinLoader.js"></script>
@@ -45,6 +47,11 @@
 			//skins
 			var waspSkin;
 			var tubeSkin;
+
+			//gui
+			var gui = new dat.GUI({
+			    height : 5 * 32 - 1
+			});
 
 			//
 			var doneLoading = false;;
@@ -74,6 +81,8 @@
 
 			function init() {
 
+				initGUI();
+
 				//setup the window and shit for display (make the canvas)
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
@@ -86,11 +95,10 @@
 				info.innerHTML = 'spin mouse around to move camera';
 				container.appendChild( info );
 
-				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, .1, 2000 );
 
 				// scene
 				scene = new THREE.Scene();
-				
 				//add some lights, why not
 				
 				var ambient = new THREE.AmbientLight( 0x4444444 );
@@ -159,6 +167,21 @@
 
 			}
 
+			function FizzyText()
+			{
+			  this.message = 'dat.gui';
+			  this.speed = 0.8;
+			  this.displayOutline = false;
+			  // Define render logic ...
+			}
+
+			function initGUI()
+			{
+				var text = new FizzyText();
+
+
+			}
+
 			function onWindowResize() {
 
 				windowHalfX = window.innerWidth / 2;
@@ -219,11 +242,15 @@
 			    		break;
 			    	case 87:
 			    		//this is the w key
+			    		camera.position.z = 100;
+			    		scene.position.y = 0;
 			    		var manager = new THREE.LoadingManager();
 						waspSkin.skin.toggleVisibility();
 						break;
 			    	case 82:
 			    		//this is the 'r' key
+			    		camera.position.z = 50;
+			    		scene.position.y = 0;
 			    		var manager = new THREE.LoadingManager();
 			    		var skinLoader4 = new THREE.SkinLoader(manager, tubeSkeleton.skeleton);
 						skinLoader4.load('tube_smooth.skin');

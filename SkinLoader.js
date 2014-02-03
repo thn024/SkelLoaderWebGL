@@ -133,7 +133,7 @@ THREE.SkinLoader.prototype = {
 			
 		}
 		//after you are done parsing, draw the scene
-		skin.Draw();
+		skin.Draw(this.skeleton);
 		this.skin = skin;
 	}
 
