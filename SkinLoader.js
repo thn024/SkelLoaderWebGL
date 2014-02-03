@@ -99,7 +99,7 @@ THREE.SkinLoader.prototype = {
 						case 'bindings':
 							state = null; index = 0; break;
 						case 'matrix':
-							state = 'bindings'; matrixIndex = 0; break;
+							state = 'bindings'; matrixIndex = 0; index++; break;
 						default:
 							console.log("no valid state"); break;
 					}
@@ -113,12 +113,12 @@ THREE.SkinLoader.prototype = {
 					    //console.log("my value is: " + parseFloat(words[0]));
 					    if(state == 'matrix')
 					    {
-					    	skin.handleInput(state, words, matrixIndex);
+					    	skin.handleInput(state, words, index, matrixIndex);
 					    	matrixIndex++;
 					    }
 					    else
 					    {
-					    	skin.handleInput(state, words, index);
+					    	skin.handleInput(state, words, index, null);
 					    	index++;
 						}
 					    
