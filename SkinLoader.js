@@ -1,13 +1,11 @@
-THREE.SkinLoader = function ( manager ) {
+THREE.SkinLoader = function ( manager, inputSkeleton) {
 
 	this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
-	this.skeleton = null;
-
+	this.skeleton = inputSkeleton;
+	this.name = null;
 };
 
-var debugging;
 var debugSkin;
-var w;
 
 THREE.SkinLoader.prototype = {
 
@@ -17,13 +15,12 @@ THREE.SkinLoader.prototype = {
 
 		var scope = this;
 		var skeleton = null;
+		this.name = url;
 		var loader = new THREE.XHRLoader( scope.manager );
 		loader.setCrossOrigin( this.crossOrigin );
 		loader.load( url, function ( text ) {
-			debugging = text;
 			console.log("preparing to parse skin : " + url)
-			console.log(text);
-			skeleton = scope.parse( text );
+			scope.parse( text );
 		} );
 	},
 
@@ -51,7 +48,7 @@ THREE.SkinLoader.prototype = {
 		var geometry, material, mesh;
 		var face_offset = 0;
 		var lines = text.split('\n');
-		var skin = new Skin();
+		var skin = new Skin(this.name, this.skeleton);
 		var skeletonRoot = null;
 		var currentJoint = null;
 		var tempJoint = null;
@@ -97,7 +94,9 @@ THREE.SkinLoader.prototype = {
 						case 'skinweights':
 						case 'triangles':
 						case 'bindings':
-							state = null; index = 0; break;
+							state = null; index = 0;
+							console.log('should be finished reading skin file');
+							break;
 						case 'matrix':
 							state = 'bindings'; matrixIndex = 0; index++; break;
 						default:
@@ -127,11 +126,14 @@ THREE.SkinLoader.prototype = {
 					break;
 			}
 
-			//after you are done parsing, draw the scene
+			
 
 			
 			
 		}
+		//after you are done parsing, draw the scene
+		skin.Draw();
+
 	}
 
 };

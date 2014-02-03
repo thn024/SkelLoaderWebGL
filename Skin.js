@@ -1,6 +1,7 @@
-function Skin(inputName)
+function Skin(inputName, inputSkeleton)
 {
 	this.name = inputName;
+	this.skeleton = inputSkeleton;
 	this.vertexBuffer = [];
 	this.indexBuffer = [];
 	this.matrixBuffer = [];
@@ -60,9 +61,9 @@ Skin.prototype.addTriangle = function(inputString, inputIndex)
 
 Skin.prototype.addMatrix = function(inputString, inputIndex, inputMatrixIndex)
 {
-	console.log(inputString);
-	console.log(inputIndex);
-	console.log(inputMatrixIndex);
+	//console.log(inputString);
+	//console.log(inputIndex);
+	//console.log(inputMatrixIndex);
 	switch(inputMatrixIndex)
 	{
 		case 0:
@@ -95,10 +96,57 @@ Skin.prototype.addMatrix = function(inputString, inputIndex, inputMatrixIndex)
 			parseFloat(this.tempString[3]), parseFloat(this.tempString[7]), parseFloat(this.tempString[11]), 1)
 			*/
 
-			
+
 			//reset the tempstring to be null for the next matrix parsing;
 			this.tempString = [];
 			break;
 		default: "probably parsed matrix wrong"; break;
 	}
 }
+
+
+var debugDraw;
+Skin.prototype.Draw = function()
+{
+	for(var i = 0; i < this.vertexBuffer.length; ++i)
+	{
+		this.vertexBuffer[i].prep(this.skeleton, this.matrixBuffer);
+	}
+
+	debugDraw = this.indexBuffer;
+	
+	for(var i = 0; i < this.indexBuffer.length; ++i)
+	{
+		//create the actual triangle for the geometry
+		var geometry = new THREE.Geometry();
+		var vert1 = this.vertexBuffer[this.indexBuffer[i][0]];
+		var vert2 = this.vertexBuffer[this.indexBuffer[i][1]];
+		var vert3 = this.vertexBuffer[this.indexBuffer[i][2]];
+
+		geometry.vertices.push(vert1.position);
+		geometry.vertices.push(vert2.position);
+		geometry.vertices.push(vert3.position);
+
+		//make the face from those 3 vertices
+		geometry.faces.push(new THREE.Face3(0,1,2));
+
+		//set the normals for each vertex
+
+		geometry.faces[0].vertexNormals[0] = vert1.normal;
+		geometry.faces[0].vertexNormals[1] = vert2.normal;
+		geometry.faces[0].vertexNormals[2] = vert3.normal;
+
+		var hex = 0xAAAAAAA;
+		geometry.faces[0].color.setHex( hex );
+
+		var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors, overdraw: 0.5 } );
+
+		this.mesh = new THREE.Mesh(geometry, material);
+
+		scene.add(this.mesh);
+
+		debugDraw = geometry;
+	}
+	
+}
+

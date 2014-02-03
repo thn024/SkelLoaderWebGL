@@ -52,5 +52,5 @@ Skeleton.prototype.setVisibility = function(inputBool)
 //function that returns the world matrix at a specific node in the scene
 Skeleton.prototype.getWorldMatrix = function(index)
 {
-
+	return this.jointBuffer[index].object3D.matrixWorld;
 }

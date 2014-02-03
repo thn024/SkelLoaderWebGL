@@ -39,6 +39,7 @@
 			var waspSkeleton;
 			var dragonSkeleton;
 			var tubeSkeleton;
+			var debugBlock
 
 			function clone(obj) {
 			    if (null == obj || "object" != typeof obj) return obj;
@@ -54,7 +55,14 @@
 			animate();
 
 
-
+			function sleep(milliseconds) {
+			  var start = new Date().getTime();
+			  for (var i = 0; i < 1e7; i++) {
+			    if ((new Date().getTime() - start) > milliseconds){
+			      break;
+			    }
+			  }
+			}
 
 			function init() {
 
@@ -110,9 +118,6 @@
 				var loader4 = new THREE.SkelLoader(manager);
 				loader4.load('tube.skel');
 				tubeSkeleton = loader4;
-
-				var skinLoader4 = new THREE.SkinLoader(manager);
-				skinLoader4.load('tube_smooth.skin');
 
 
 				//add a nice ground plane
@@ -197,6 +202,10 @@
 			    		waspSkeleton.skeleton.setVisibility(false);
 			    		dragonSkeleton.skeleton.setVisibility(false);
 			    		break;
+			    	case 53:
+			    		var manager = new THREE.LoadingManager();
+			    		var skinLoader4 = new THREE.SkinLoader(manager, tubeSkeleton.skeleton);
+						skinLoader4.load('tube_smooth.skin'); break;
 			    	default: console.log(event.keyCode);
 			    }
 			}
