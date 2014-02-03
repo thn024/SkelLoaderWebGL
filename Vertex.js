@@ -49,8 +49,8 @@ var debugPos; var debugPos2; var debugM; var debugI;
 Vertex.prototype.handlePos = function(inputSkeleton, inputMatrixBuffer)
 {
 	//go through the list of matricies
-	console.log("old position : ")
-	console.log(this.position);
+	//console.log("old position : ")
+	//console.log(this.position);
 	var iBuffer = [];
 	for(var i = 0; i < this.jointIndex.length; i++)
 	{
@@ -110,8 +110,12 @@ Vertex.prototype.handlePos = function(inputSkeleton, inputMatrixBuffer)
 	}
 
 	var newPosition = this.position.applyMatrix4(temp);
-	console.log(newPosition);
+	var newNormal = this.normal.applyMatrix4(temp);
+	newNormal.normalize();
+
+	//console.log(newPosition);
 	this.position = newPosition.clone();
+	this.normal = newNormal.clone();
 	//after you finish getting each 
 
 }

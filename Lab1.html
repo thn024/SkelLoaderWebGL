@@ -35,11 +35,19 @@
 
 			var windowHalfX = window.innerWidth / 2;
 			var windowHalfY = window.innerHeight / 2;
+
+			//skeletons
 			var testSkeleton;
 			var waspSkeleton;
 			var dragonSkeleton;
 			var tubeSkeleton;
-			var debugBlock
+			
+			//skins
+			var waspSkin;
+			var tubeSkin;
+
+			//
+			var doneLoading = false;;
 
 			function clone(obj) {
 			    if (null == obj || "object" != typeof obj) return obj;
@@ -84,14 +92,19 @@
 				scene = new THREE.Scene();
 				
 				//add some lights, why not
-				/*
-				var ambient = new THREE.AmbientLight( 0x101030 );
+				
+				var ambient = new THREE.AmbientLight( 0x4444444 );
 				scene.add( ambient );
 				
-				var directionalLight = new THREE.DirectionalLight( 0xffeedd );
-				directionalLight.position.set( 0, 0, 1 );
-				scene.add( directionalLight );
-				*/
+				
+				pointLight = new THREE.PointLight( 0xff1111, .7, 5000 );
+				pointLight.position.set( 50, 50, 0 );
+				scene.add( pointLight );
+
+				pointLight2 = new THREE.PointLight( 0x4444aa, .5, 5000 );
+				pointLight2.position.set( -50, 20, 100 );
+				scene.add( pointLight2);
+				
 
 				//use Three.js' loading library cause im a little lazy to my own
 				var manager = new THREE.LoadingManager();
@@ -100,20 +113,22 @@
 					console.log( item, loaded, total );
 				};
 
-				/*
+				
 				var loader1 = new THREE.SkelLoader(manager);
 				loader1.load('test.skel');
 				testSkeleton = loader1;
 
-				var loader2 = new THREE.SkelLoader(manager);
-				//loader2.load('wasp.skel');
-				waspSkeleton = loader2;
+				
 
 				var loader3 = new THREE.SkelLoader(manager);
-				//loader3.load('dragon.skel');
+				loader3.load('dragon.skel');
 				dragonSkeleton = loader3;
 
-				*/
+				
+
+				var loader2 = new THREE.SkelLoader(manager);
+				loader2.load('wasp.skel');
+				waspSkeleton = loader2;
 
 				var loader4 = new THREE.SkelLoader(manager);
 				loader4.load('tube.skel');
@@ -181,7 +196,7 @@
 			    		dragonSkeleton.skeleton.setVisibility(false);
 			    		break;
 			    	case 50: console.log ('i pressed 2');
-			    		camera.position.z = -200;
+			    		camera.position.z = 100;
 			    		scene.position.y = 0;
 			    		waspSkeleton.skeleton.toggleVisibility();
 			    		testSkeleton.skeleton.setVisibility(false);
@@ -202,11 +217,34 @@
 			    		waspSkeleton.skeleton.setVisibility(false);
 			    		dragonSkeleton.skeleton.setVisibility(false);
 			    		break;
-			    	case 53:
+			    	case 87:
+			    		//this is the w key
+			    		var manager = new THREE.LoadingManager();
+						waspSkin.skin.toggleVisibility();
+						break;
+			    	case 82:
+			    		//this is the 'r' key
 			    		var manager = new THREE.LoadingManager();
 			    		var skinLoader4 = new THREE.SkinLoader(manager, tubeSkeleton.skeleton);
-						skinLoader4.load('tube_smooth.skin'); break;
-			    	default: console.log(event.keyCode);
+						skinLoader4.load('tube_smooth.skin');
+						tubeSkin.skin.toggleVisibility();
+						break;
+					case 32:
+						if(!doneLoading)
+						{
+							var manager = new THREE.LoadingManager();
+				    		tubeSkin = new THREE.SkinLoader(manager, tubeSkeleton.skeleton);
+							tubeSkin.load('tube_smooth.skin');
+
+							var manager = new THREE.LoadingManager();
+				    		waspSkin = new THREE.SkinLoader(manager, waspSkeleton.skeleton);
+							waspSkin.load('wasp.skin');
+							doneLoading = true;
+						}
+						break;
+
+
+			    	default: console.log(event.keyCode); break;
 			    }
 			}
 

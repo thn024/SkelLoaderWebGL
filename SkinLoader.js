@@ -3,6 +3,7 @@ THREE.SkinLoader = function ( manager, inputSkeleton) {
 	this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
 	this.skeleton = inputSkeleton;
 	this.name = null;
+	this.skin = null;
 };
 
 var debugSkin;
@@ -133,7 +134,7 @@ THREE.SkinLoader.prototype = {
 		}
 		//after you are done parsing, draw the scene
 		skin.Draw();
-
+		this.skin = skin;
 	}
 
 };
