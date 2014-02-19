@@ -76,7 +76,9 @@ THREE.SkelLoader.prototype = {
 			line = line.trim().replace(/\s+/g, ' ');
 			//split up the line into single words, store into a word array
 			words = line.split(' ');
-			
+			console.log(words);
+
+
 			switch(words[0])
 			{
 				case 'offset':
@@ -108,6 +110,8 @@ THREE.SkelLoader.prototype = {
 						currentJoint = tempJoint;
 					}
 
+					
+					/*
 					jointGui = this.guiFolder.addFolder(currentJoint.name);
 					jointGui.add(currentJoint, 'name');
 
@@ -120,6 +124,7 @@ THREE.SkelLoader.prototype = {
 					poseGui.add(currentJoint, 'xOff');
 					poseGui.add(currentJoint, 'yOff');
 					poseGui.add(currentJoint, 'zOff');
+					*/
 
 					jointStack.push(currentJoint);
 

@@ -18,6 +18,7 @@ function DOF(inputWords)
 		case 'boxmin':
 		case 'boxmax':
 		case 'pose':
+		//console.log(inputWords);
 			this.setValue(inputWords[1], inputWords[2], inputWords[3]);
 			break;
 		case 'rotxlimit':

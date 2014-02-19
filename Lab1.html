@@ -25,6 +25,10 @@
 		<script src="Joint.js"></script>
 		<script src="Skeleton.js"></script>
 		<script src="SkinLoader.js"></script>
+		<script src="AnimLoader.js"></script>
+		<script src="Animation.js"></script>
+		<script src="Channel.js"></script>
+		<script src="Key.js"></script>
 		<script src="Skin.js"></script>
 		<script src="Vertex.js"></script>
 		<script>
@@ -47,6 +51,9 @@
 			//skins
 			var waspSkin;
 			var tubeSkin;
+
+			//animations
+			var waspAnim;
 
 			//gui
 			var gui = new dat.GUI({
@@ -121,7 +128,7 @@
 					console.log( item, loaded, total );
 				};
 
-				
+				/*
 				var loader1 = new THREE.SkelLoader(manager);
 				loader1.load('test.skel');
 				testSkeleton = loader1;
@@ -131,17 +138,18 @@
 				var loader3 = new THREE.SkelLoader(manager);
 				loader3.load('dragon.skel');
 				dragonSkeleton = loader3;
-
+				*/
 				
 
 				var loader2 = new THREE.SkelLoader(manager);
 				loader2.load('wasp.skel');
 				waspSkeleton = loader2;
 
+				
 				var loader4 = new THREE.SkelLoader(manager);
 				loader4.load('tube.skel');
 				tubeSkeleton = loader4;
-
+				
 
 				//add a nice ground plane
 				/*
@@ -257,6 +265,12 @@
 						tubeSkin.skin.toggleVisibility();
 						break;
 					case 32:
+						if(doneLoading)
+						{
+							var manager = new THREE.LoadingManager();
+				    		waspAnim = new THREE.AnimLoader(manager, waspSkeleton.skeleton);
+				    		waspAnim.load('wasp_walk.anim');
+						}
 						if(!doneLoading)
 						{
 							var manager = new THREE.LoadingManager();
@@ -268,6 +282,7 @@
 							waspSkin.load('wasp.skin');
 							doneLoading = true;
 						}
+
 						break;
 
 
@@ -280,6 +295,12 @@
 			function animate() {
 
 				requestAnimationFrame( animate );
+
+				if(doneLoading)
+				{
+					waspSkeleton.skeleton.Update();
+					waspSkin.skin.Update();
+				}
 				render();
 
 			}

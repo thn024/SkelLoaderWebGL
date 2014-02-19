@@ -56,3 +56,8 @@ Skeleton.prototype.getWorldMatrix = function(index)
 {
 	return this.jointBuffer[index].object3D.matrixWorld;
 }
+
+Skeleton.prototype.getJoint = function(index)
+{
+	return this.jointBuffer[index];
+}

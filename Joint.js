@@ -13,8 +13,8 @@ function Joint(inputName)
 	this.data = []; //set of DOF's to use
 	this.dataGui = []; //set of DOFGuis' to use
 	this.offset = [0,0,0];//new THREE.Vector3();
-	this.min = null;
-	this.max = null;
+	this.min = [-1,-1,-1];
+	this.max = [1,1,1];
 	this.rotXLimit = [-100000,100000];
 	this.rotYLimit = [-100000,100000];
 	this.rotZLimit = [-100000,100000];
@@ -199,7 +199,11 @@ Joint.prototype.MakeCube = function()
 			geometry.faces[ i + 1 ].color.setHex( hex );
 		}
 
-	var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors, overdraw: 0.5, transparent : true,
+	var material = new THREE.MeshBasicMaterial( {
+		vertexColors: THREE.FaceColors,
+		shading: THREE.SmoothShading,
+		//color: '0xffffff',
+		overdraw: 0.5, transparent : false,
                     alphaTest : 0.5 } );
 
     this.mesh = new THREE.Mesh(geometry, material);

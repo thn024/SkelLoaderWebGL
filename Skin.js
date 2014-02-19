@@ -12,6 +12,9 @@ function Skin(inputName, inputSkeleton)
 	this.visibility = false;
 	this.object3D.visible = false;
 	scene.add(this.object3D);
+
+	this.geometry = new THREE.Geometry();
+	this.tNormalBuffer = [];
 }
 
 //for each different block of data, store the data into the corresponding buffers
@@ -113,25 +116,34 @@ Skin.prototype.addMatrix = function(inputString, inputIndex, inputMatrixIndex)
 var debugDraw;
 Skin.prototype.Update = function()
 {
-	//scene.remove(scene.getObjectByName(this.name));
-	if(this.object3D.getObjectByName("mesh") != undefined)
-	{
-		console.log("removed the mesh");
-		this.object3D.remove(this.object3D.getObjectByName("mesh"));
-	}
-	this.skeleton.Update();
 	for(var i = 0; i < this.vertexBuffer.length; ++i)
 	{
 		this.vertexBuffer[i].prep(this.skeleton, this.matrixBuffer);
+		this.geometry.vertices[i] = this.vertexBuffer[i].nPosition;
+		this.tNormalBuffer[i] = this.vertexBuffer[i].nNormal;
 	}
+	this.geometry.verticesNeedUpdate = true;
+	
+}
 
-	var geometry = new THREE.Geometry();
-	var tNormalBuffer = [];
+Skin.prototype.Draw = function()
+{
+	
+	this.Update();
+	/*
 	for(var i = 0; i < this.vertexBuffer.length; ++i)
 	{
 		//fill up the vertex buffer
 		geometry.vertices.push(this.vertexBuffer[i].nPosition);
 		tNormalBuffer.push(this.vertexBuffer[i].nNormal);
+	}
+	*/
+
+	for(var i = 0; i < this.vertexBuffer.length; ++i)
+	{
+		//fill up the vertex buffer
+		this.geometry.vertices[i] = this.vertexBuffer[i].nPosition;
+		this.tNormalBuffer[i] = this.vertexBuffer[i].nNormal;
 	}
 
 	for(var i = 0; i < this.indexBuffer.length; ++i)
@@ -141,33 +153,39 @@ Skin.prototype.Update = function()
 		var index3 = this.indexBuffer[i][2];
 
 		//make the face from those 3 vertices
-		geometry.faces.push(new THREE.Face3(index1, index2, index3));
+		this.geometry.faces.push(new THREE.Face3(index1, index2, index3));
 
 		//set the normals for each vertex
 
-		geometry.faces[i].vertexNormals[0] = tNormalBuffer[index1];
-		geometry.faces[i].vertexNormals[1] = tNormalBuffer[index2];
-		geometry.faces[i].vertexNormals[2] = tNormalBuffer[index3];
+		this.geometry.faces[i].vertexNormals[0] = this.tNormalBuffer[index1];
+		this.geometry.faces[i].vertexNormals[1] = this.tNormalBuffer[index2];
+		this.geometry.faces[i].vertexNormals[2] = this.tNormalBuffer[index3];
 
-		debugDraw = geometry;
+		debugDraw = this.geometry;
 	}
 
-	//var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors, overdraw: 0.5 } );
-	var material = new THREE.MeshPhongMaterial( { color: 0xffffff, ambient: 0x444444, transparent: false} );
-	//material.side = THREE.DoubleSide;
+	/*var material = new THREE.MeshBasicMaterial( { 
+									shading: THREE.FlatShading,
+									color: '#ffffff', overdraw: 0.5 } );
 
-	this.mesh = new THREE.Mesh(geometry, material);
+	var material = new THREE.MeshPhongMaterial( { 	//color: 0xffffff,
+													specular: '#a9fcff',
+											        // intermediate
+											        //color: '#55abb1',
+											        color: '#ffffff',
+
+											        // dark
+											        //emissive: '#336063',
+											        shininess: 100 ,
+											        transparent: false,
+											        overdraw: .5} );*/
+	//material.side = THREE.DoubleSide;
+	material = new THREE.MeshPhongMaterial( { ambient: 0x030303, color: 0xdddddd, specular: 0x009900, shininess: 30, shading: THREE.FlatShading } ) ;
+	this.mesh = new THREE.Mesh(this.geometry, material);
 	this.mesh.name = "mesh";
 	//scene.add(this.object3D);
 	
 	this.object3D.add(this.mesh);
-}
-
-Skin.prototype.Draw = function()
-{
-	
-	this.Update();
-	
 	//add each individual triangle into the scene, exetremely slow?
 	/*
 	for(var i = 0; i < this.indexBuffer.length; ++i)
