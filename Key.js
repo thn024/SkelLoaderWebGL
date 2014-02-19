@@ -4,6 +4,12 @@ function Key()
 	this.typeOut = null;
 	this.time = null;
 	this.value = null;
+	this.index = null;
+}
+
+Key.prototype.setIndex = function(inputIndex)
+{
+	this.index = inputIndex;
 }
 
 Key.prototype.setTypeIn = function(inputWords)

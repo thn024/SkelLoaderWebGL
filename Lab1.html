@@ -294,7 +294,7 @@
 			    }
 			}
 
-			//
+			var tempTime = 0;
 
 			function animate() {
 
@@ -312,9 +312,19 @@
 						for(var i = 0; i < 72; ++i)
 						{
 							console.log("index :: " + i);
-							waspAnim.animation.channels[i].Evaluate(0);
+							//console.log("tempTime : " + tempTime);
+							waspAnim.animation.channels[i].Evaluate(tempTime);
+
 						}
-						startAnim = false;
+						
+						
+						tempTime += .1;
+						if(tempTime >= 4)
+						{
+							tempTime = 0;
+						}
+						
+						//startAnim = false;
 					}
 
 					waspSkeleton.skeleton.Update();

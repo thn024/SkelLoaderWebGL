@@ -1,6 +1,6 @@
 function Channel(inputSkeleton, inputIndex)
 {
-	this.extrapolationType = null;
+	this.extrapolationType = null;	//constant, linear, cycle, cycle_offset, bounce
 	this.numKeys = null;
 	this.keys = [];
 	this.skeleton = inputSkeleton;
@@ -40,27 +40,15 @@ Channel.prototype.setKey = function(inputWords)
 	key.setTime(parseFloat(inputWords[0]));
 	key.setValue(parseFloat(inputWords[1]));
 
+	key.setIndex(this.keys.length);
+
 	this.keys.push(key);
 }
 var debugAnim;
 var debugAres;
 Channel.prototype.Evaluate = function(inputTime)
 {
-	//set up the time vector
-	var timeVec = new THREE.Vector4();
-	timeVec.setX(inputTime*inputTime*inputTime);
-	timeVec.setY(inputTime*inputTime);
-	timeVec.setZ(inputTime);
-	timeVec.setW(1);
-
-	var a,b,c,d;
-
-	//set up the inverse matrix
-	var mat = new THREE.Matrix4();
-	mat.set(	2,-2,1,1,
-				-3,3,-2,-1,
-				0,0,1,0,
-				1,0,0,0	);
+	
 
 	//grab the positions
 	//get the joint that this channel corresponds to
@@ -74,12 +62,20 @@ Channel.prototype.Evaluate = function(inputTime)
 	var result;
 	var currentKey
 	var exact = false;
+	var outOfBounds = false;
+
+	if(this.extrapolationType == "constant")
+	{
+		result = this.keys[0].value;
+		outOfBounds = true;
+	}
 
 	//if the time is before the first key's time
 	if(inputTime < this.keys[0].time)
 	{
 		//temporary
 		result = this.keys[0].value;
+		outOfBounds = true;
 	}
 
 	//if the time is after the last key's time
@@ -87,32 +83,37 @@ Channel.prototype.Evaluate = function(inputTime)
 	{
 		//temporary
 		result = this.keys[this.keys.length-1].value;
+		outOfBounds= true;
 	}
 
 	//go through all the keys to look for the span
-	for(var i = 0; i < this.keys.length; ++i)
+	if(!outOfBounds)
 	{
-		currentKey = this.keys[i];
+		for(var i = 0; i < this.keys.length; ++i)
+		{
+			currentKey = this.keys[i];
 
-		//if the time is exactly the value of a keytime, return key value
-		if(inputTime == this.keys[i].time)
-		{
-			console.log("hit an exact time");
-			result = this.keys[i].value;
-			exact = true;
-			console.log(result);
-			break;
-		}
-		else
-		{
-			if(inputTime > this.keys[i].time)
+			//if the time is exactly the value of a keytime, return key value
+			if(inputTime == this.keys[i].time)
 			{
-				result = tempLower.value;
-				console.log("hit a relative time");
-				console.log(result);
+				//console.log("hit an exact time");
+				result = this.keys[i].value;
+				exact = true;
+				//console.log(result);
 				break;
 			}
-			tempLower = this.keys[i];
+			else
+			{
+				if(inputTime < this.keys[i].time)
+				{
+					//result = tempLower.value;
+					result = this.evalCubic(tempLower, this.keys[i], inputTime);
+					console.log("hit a relative time");
+					//console.log(result);
+					break;
+				}
+				tempLower = this.keys[i];
+			}
 		}
 	}
 
@@ -128,10 +129,88 @@ Channel.prototype.Evaluate = function(inputTime)
 	{
 		console.log("setting pose components");
 		console.log("From : " + tempJoint.pose.getComponent(this.DOFIndex));
-		console.log("To : " + result);
+		//console.log("To : " + result);
 		tempJoint.pose.setComponent(this.DOFIndex, result);
 	}
 
 
 
+}
+
+Channel.prototype.evalCubic = function(inputKey1, inputKey2, inputTime)
+{
+	//set up the time vector
+	
+
+	var key1Time = inputKey1.time;
+	var key2Time = inputKey2.time;
+
+	var key1Value = inputKey1.value;
+	var key2Value = inputKey2.value;
+
+	var realTime = (inputTime-key1Time)/(key2Time - key1Time);
+
+
+	var key1Tangent;
+	var key2Tangent;
+	//smooth first tangent
+	/*
+	switch(inputKey1.typeIn)
+	{
+		case "flat": break;
+		case "linear": break;
+		case "smooth":
+		console.log(inputKey1.index);
+		console.log(inputKey2.index);
+		var prevValue;
+		var prevTime;
+		if(this.extrapolationType = "cycle_offset")
+		{
+			//if the previous key index is < 0, offset it with the value, use the previous keyframe's value
+			if(inputKey1.index-1 < 0)
+			{
+				prevValue = this.keys[this.keys.length-1].value - inputKey1.value;
+				prevTime = 
+			}
+			else
+			{
+				prevValue = this.keys[inputKey1.index-1].value;
+			}
+		}
+			var key1Tangent = (key2Value - prevValue)/(key2Time - this.keys[inputKey1.index-1].time);
+			console.log("SMOOTH VALUE " + key1Tangent);
+		case "fixed": break;
+		default:		break;
+	}
+	*/
+
+	key1Tangent = 0;
+	key2Tangent = 0;
+	//var key1Tangent = (key2Value - keys[inputKey1.index-1].value)/(key2Time - keys[inputKey1.index-1].time)
+
+	//console.log("key2t = " + key2Time);
+	//console.log("key1t = " + key1Time);
+	//console.log("realtime = " + realTime);
+
+	var timeVec = new THREE.Vector4();
+	timeVec.setX(realTime*realTime*realTime);
+	timeVec.setY(realTime*realTime);
+	timeVec.setZ(realTime);
+	timeVec.setW(1);
+
+	//set up the inverse matrix
+	var mat = new THREE.Matrix4();
+	mat.set(	2,-2,1,1,
+				-3,3,-2,-1,
+				0,0,1,0,
+				1,0,0,0	);
+
+	var posT = new THREE.Vector4(key1Value, key2Value, key1Tangent, key2Tangent);
+
+	posT.applyMatrix4(mat);
+
+	var result = timeVec.dot(posT);
+	console.log("result position = " + result);
+
+	return result;
 }
