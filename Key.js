@@ -2,8 +2,8 @@ function Key()
 {
 	this.typeIn = null;
 	this.typeOut = null;
-	this.tangentIn = null;
-	this.tangentOut = null;
+	this.time = null;
+	this.value = null;
 }
 
 Key.prototype.setTypeIn = function(inputWords)
@@ -16,12 +16,12 @@ Key.prototype.setTypeOut = function(inputWords)
 	this.typeOut = inputWords;
 }
 
-Key.prototype.setTangentIn = function(inputTangentIn)
+Key.prototype.setTime = function(inputTimeIn)
 {
-	this.tangentIn = inputTangentIn;
+	this.time = inputTimeIn;
 }
 
-Key.prototype.setTangentOut = function(inputTangentOut)
+Key.prototype.setValue = function(inputValueIn)
 {
-	this.tangentOut = inputTangentOut;
+	this.value = inputValueIn;
 }

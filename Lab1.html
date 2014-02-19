@@ -54,6 +54,7 @@
 
 			//animations
 			var waspAnim;
+			var startAnim = false;
 
 			//gui
 			var gui = new dat.GUI({
@@ -264,6 +265,9 @@
 						skinLoader4.load('tube_smooth.skin');
 						tubeSkin.skin.toggleVisibility();
 						break;
+					case 83:
+						startAnim = true;
+						console.log("starting animation"); break;
 					case 32:
 						if(doneLoading)
 						{
@@ -298,6 +302,21 @@
 
 				if(doneLoading)
 				{
+					
+
+					//simple debugging of animation
+					if(startAnim)
+					{
+
+						//console.log("in animation block");
+						for(var i = 0; i < 72; ++i)
+						{
+							console.log("index :: " + i);
+							waspAnim.animation.channels[i].Evaluate(0);
+						}
+						startAnim = false;
+					}
+
 					waspSkeleton.skeleton.Update();
 					waspSkin.skin.Update();
 				}

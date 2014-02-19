@@ -51,8 +51,7 @@ THREE.AnimLoader.prototype = {
 		var currentJoint = null;
 		var currentChannel = null;
 		var state = null;
-		var index = 0;
-		var matrixIndex = 0;
+		var channelIndex = 0;
 		//for every line, we want to parse skele data
 		for(var i =0; i < lines.length; ++i)
 		{
@@ -76,7 +75,8 @@ THREE.AnimLoader.prototype = {
 					break;
 				case 'channel':
 					console.log("making a new channel");
-					currentChannel = new Channel();
+					currentChannel = new Channel(this.skeleton, channelIndex);
+					channelIndex++;
 					this.animation.addChannel(currentChannel);
 					break;
 				case 'extrapolate':
